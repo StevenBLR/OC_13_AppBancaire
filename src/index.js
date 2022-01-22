@@ -7,21 +7,19 @@ import App from "./App";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import SignIn from "./pages/SignIn";
+import User from "./pages/User";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
-    {/* <Router>
+    <Router>
       <Header />
       <Routes>
-        <Route exact path="/" element={<Home />}></Route>
-        <Route path="/signin" element={<SignIn />}>
-          <SignIn />
-        </Route>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/signin" element={<SignIn />}></Route>
+        <Route path="/user" element={<User />}></Route>
       </Routes>
-
       <Footer />
-    </Router> */}
+    </Router>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.querySelector("body")
 );
