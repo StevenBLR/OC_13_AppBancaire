@@ -45,13 +45,14 @@ export function getUserProfil(userToken) {
 /**
  * Update User's profile infos
  * @param {String} userToken User token
- * @param {Object} data User profile modifications to push
+ * @param {String} firstName User firstName to update
+ * @param {String} lastName  User lastName to update
  * @returns Promise containing profil update status
  */
-export function updateUserProfil(userToken, data) {
+export function updateUserProfil(userToken, firstName, lastName) {
   const config = {
     headers: { Authorization: `Bearer ${userToken}` },
   };
   const path = `/user/profile`;
-  return axInstance.put(path, config, data);
+  return axInstance.put(path, config, { firstName, lastName });
 }
