@@ -1,6 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router";
+import { loginUser } from "../data/userRoutes";
 
 function SignIn() {
+  //const user = // Recup etat user;
+  const navigation = useNavigate();
+  //if (user) navigation.navigate("User"); // redirect vers par user si deja connecté
   return (
     <main className="main bg-dark">
       <section className="sign-in-content">
@@ -20,12 +25,11 @@ function SignIn() {
             <label for="remember-me">Remember me</label>
           </div>
           {/* <!-- PLACEHOLDER DUE TO STATIC SITE --> */}
-          <a href="./user.html" className="sign-in-button">
-            Sign In
-          </a>
+
           {/* <!-- SHOULD BE THE BUTTON BELOW --> */}
-          {/* <!-- <button className="sign-in-button">Sign In</button> -->
-      <!--  --> */}
+          <button type="submit" className="sign-in-button" onClick={() => ""}>
+            Sign In
+          </button>
         </form>
       </section>
     </main>
