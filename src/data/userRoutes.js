@@ -5,6 +5,8 @@ const axInstance = axios.create({
   baseURL: serverUrl,
 });
 
+// Fusionner avec fichier redux (Plus coherant convention React)
+
 /**
  * Try to log in user with credentials
  * @param {String} email User email

@@ -1,11 +1,21 @@
 import React from "react";
+import { useSelector } from "react-redux"; // hook react-redux permettant de lire le state redux
+import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useNavigate } from "react-router";
-import { loginUser } from "../data/userRoutes";
 
 function SignIn() {
-  //const user = // Recup etat user;
-  const navigation = useNavigate();
   //if (user) navigation.navigate("User"); // redirect vers par user si deja connecté
+  const navigation = useNavigate();
+  const dispatch = useDispatch(); // On utilise le hook useDispatch dans notre composant
+  const userLogged = useSelector((state) => state.loggedIn); // On stock l'état de notre substate "logged in"
+
+  // X - If user is logged already --> Redirect to user page
+
+  const handleSubmit = () => {
+    // On excecute la fonction dispatch avec une action
+    dispatch({ type: "login" });
+  };
+
   return (
     <main className="main bg-dark">
       <section className="sign-in-content">
@@ -27,7 +37,12 @@ function SignIn() {
           {/* <!-- PLACEHOLDER DUE TO STATIC SITE --> */}
 
           {/* <!-- SHOULD BE THE BUTTON BELOW --> */}
-          <button type="submit" className="sign-in-button" onClick={() => ""}>
+          {/* Utiliser react hook form pour recuprerer les values dui form */}
+          <button
+            type="submit"
+            className="sign-in-button"
+            onClick={() => handleSubmit()}
+          >
             Sign In
           </button>
         </form>
