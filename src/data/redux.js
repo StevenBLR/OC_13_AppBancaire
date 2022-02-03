@@ -1,6 +1,7 @@
 import { createStore } from "@reduxjs/toolkit";
 import axios from "axios";
 import { serverUrl } from "./apiInfos";
+import { setData } from "./localStorage";
 
 const axInstance = axios.create({
   baseURL: serverUrl,
@@ -12,34 +13,43 @@ const initialState = {
   sessionToken: null,
 };
 
+//#region Actions
 // Fonction qui créee une action (Action Creator)
-export const loginAction = (email, pwd) => ({
-  type: "login",
-  payload: { email: email, password: pwd },
-});
+export const loginAction = (email, pwd) => {
+  /**
+   * Try to log in user with credentials
+   * @param {String} email User email
+   * @param {String} pwd  User password
+   * @returns Promise containing user's token if logged properly
+   */
+
+  console.log("Action called (login)", email, pwd);
+  const path = `/user/login`;
+  const token = axInstance.post(path, { email, pwd })?.data?.token;
+  setData("token", token);
+
+  return {
+    type: "login",
+    payload: token,
+  };
+};
+
+// Logout
+
+//
+//#endregion
 
 function reducer(state, action) {
   if (action.type === "login") {
-    // Tentative de connexion
+    // MAJ le state selon
+    let logged = false;
+    if (action.payload) logged = true;
+    // Retour du state modifié
 
-    /**
-     * Try to log in user with credentials
-     * @param {String} email User email
-     * @param {String} pwd  User password
-     * @returns Promise containing user's token if logged properly
-     */
-
-    function loginUser(email, pwd) {
-      const path = `/user/login`;
-      return axInstance.post(path, { email, pwd });
-    }
-
-    loginUser(action.payload.email, action.payload.password).then((res) => {
-      console.log(res);
-    });
-
+    // recreer l'objet (...state) et on modifie un de ses attributs apres la ","
     return {
       ...state,
+      loggedIn: logged,
     };
 
     // Reussite --> Enregistrement du token
