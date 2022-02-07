@@ -27,6 +27,7 @@ export const loginAction = (email, pwd) => {
   const path = `/user/login`;
   const token = axInstance.post(path, { email, pwd })?.data?.token;
   setData("token", token);
+  console.log(token);
 
   return {
     type: "login",
