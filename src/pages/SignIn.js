@@ -23,9 +23,9 @@ function SignIn() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      userName: "user@mail.com",
-    },
+    // defaultValues: {
+    //   userName: "user@mail.com",
+    // },
   });
 
   console.log("Hook form status", errors);
