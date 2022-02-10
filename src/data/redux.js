@@ -15,7 +15,7 @@ const initialState = {
 
 //#region Actions
 // Fonction qui créee une action (Action Creator)
-export const loginAction = (email, pwd) => {
+export const loginAction = async (email, password) => {
   /**
    * Try to log in user with credentials
    * @param {String} email User email
@@ -23,15 +23,46 @@ export const loginAction = (email, pwd) => {
    * @returns Promise containing user's token if logged properly
    */
 
-  console.log("Action called (login)", email, pwd);
+  console.log("Action called (login)", email, password);
   const path = `/user/login`;
-  const token = axInstance.post(path, { email, pwd })?.data?.token;
-  setData("token", token);
-  console.log(token);
+  let message = "";
+  const token = axInstance
+    .post(path, { email, password })
+    .then((res) => {
+      // 1a - Successful request, store the token
+
+      setData("token", res?.data?.body?.token);
+      message = "Connexion réussie, vous etes maintenant connecté";
+      console.log(message, res);
+    })
+    .catch((error) => {
+      // 1b - Error, display message depening on error
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        message = "Le mot de passe ou l'identifiant est incorrect";
+        console.log(`Error ${error.response.status} - `, message);
+        // console.log(error.response.headers);
+        // console.log(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the
+        // browser and an instance of
+        // http.ClientRequest in node.js
+        message = "Le server ne répond pas";
+        console.log(error.request, message);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        message = "Il y a un problème au niveau de la requete";
+        console.log("Error", error.message, message);
+      }
+      console.log(error.config);
+    });
 
   return {
     type: "login",
     payload: token,
+    message: message,
   };
 };
 
