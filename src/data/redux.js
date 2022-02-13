@@ -1,5 +1,6 @@
-import { createStore } from "@reduxjs/toolkit";
+import { createStore } from "redux";
 import axios from "axios";
+import produce from "immer";
 import { serverUrl } from "./apiInfos";
 import { setData } from "./localStorage";
 
@@ -30,7 +31,6 @@ export const loginAction = async (email, password) => {
     .post(path, { email, password })
     .then((res) => {
       // 1a - Successful request, store the token
-
       setData("token", res?.data?.body?.token);
       message = "Connexion réussie, vous etes maintenant connecté";
       console.log(message, res);
@@ -73,20 +73,30 @@ export const loginAction = async (email, password) => {
 
 function reducer(state, action) {
   if (action.type === "login") {
-    // MAJ le state selon
     let logged = false;
+    console.log("Action payload", action.payload);
     if (action.payload) logged = true;
-    // Retour du state modifié
-
+    // Modification du state
+    // 1a - METHODE DESTRUCTURATION (REDUX only)
     // recreer l'objet (...state) et on modifie un de ses attributs apres la ","
-    return {
-      ...state,
-      loggedIn: logged,
-    };
+    // return {
+    //   ...state,               // Copie du state précedent
+    //   loggedIn: logged,       // Modification de du parametre loggedIn
+    // };
 
-    // Reussite --> Enregistrement du token
-    // Echec --> Conservation de l'état par defaut
+    // 1b - METHODE IMMER (Redux + immer)
+    // Edition du "state" directement, en passant par l'objet immer "draft"
+    return produce(state, (draft) => {
+      draft.loggedIn = true;
+    });
   }
+
+  // Reussite --> Enregistrement du token
+  // Echec --> Conservation de l'état par defaut
 }
 
 export const store = createStore(reducer, initialState);
+
+store.subscribe(() => {
+  console.log(store.getState());
+});

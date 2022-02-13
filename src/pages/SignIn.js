@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form"; // hook permettant de recuperer facilement le contenu d'un formulaire
-import { useSelector } from "react-redux"; // hook react-redux permettant de lire le state redux
+import { useSelector, useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
 import { loginAction } from "../data/redux";
@@ -8,6 +8,7 @@ import { loginAction } from "../data/redux";
 function SignIn() {
   const navigation = useNavigate();
   const dispatch = useDispatch(); // On utilise le hook useDispatch dans notre composant
+  const store = useStore();
   //const userLogged = useSelector((state) => state.loggedIn); // On stock l'état de notre substate "logged in"
   const minLength = 4;
 
@@ -31,11 +32,14 @@ function SignIn() {
   console.log("Hook form status", errors);
 
   // Login with user credentials
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = (userInput) => {
+    console.log(userInput);
     // On excecute la fonction dispatch avec une action
-    dispatch(loginAction(data.userName, data.password));
+    dispatch(loginAction(userInput.userName, userInput.password));
   };
+  // if (userLogged) {
+  //   console.log("User Logged (Signin page)");
+  // }
 
   // Redirect user to previous page if he is already logged in
   // useEffect(() => {
