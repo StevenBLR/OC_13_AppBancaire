@@ -8,6 +8,8 @@ const axInstance = axios.create({
   baseURL: serverUrl,
 });
 
+const reduxDevtools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+
 const initialState = {
   loggedIn: false,
   user: null,
@@ -95,7 +97,8 @@ function reducer(state, action) {
   // Echec --> Conservation de l'état par defaut
 }
 
-export const store = createStore(reducer, initialState);
+//export const store = createStore(reducer, initialState);
+export const store = createStore(reducer, reduxDevtools);
 
 store.subscribe(() => {
   console.log(store.getState());
