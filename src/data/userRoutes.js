@@ -10,12 +10,12 @@ const axInstance = axios.create({
 /**
  * Try to log in user with credentials
  * @param {String} email User email
- * @param {String} pwd  User password
+ * @param {String} password  User password
  * @returns Promise containing user's token if logged properly
  */
-export function loginUser(email, pwd) {
+export function loginUser(email, password) {
   const path = `/user/login`;
-  return axInstance.post(path, { email, pwd });
+  return axInstance.post(path, { email, password });
 }
 
 /**
