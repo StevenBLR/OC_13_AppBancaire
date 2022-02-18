@@ -10,6 +10,7 @@ function SignIn() {
   // On recupere le store grace au hook useStore()
   const store = useStore();
   const minLength = 1;
+  const navigation = useNavigate();
   /** Parametrage hook form
    *
    * @param {Function} register Connect any input to hook form system
@@ -28,10 +29,14 @@ function SignIn() {
   });
 
   // Login with user credentials
-  const onSubmit = (userInput) => {
+  const onSubmit = async (userInput) => {
     console.log("User inputs", userInput);
     // On excecute la fonction dispatch avec une action
-    fetchOrUpdateUser(store, userInput.username, userInput.password);
+    const res = await fetchOrUpdateUser(
+      store,
+      userInput.username,
+      userInput.password
+    );
   };
 
   return (

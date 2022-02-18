@@ -14,6 +14,8 @@ const initialState = {
   status: "void",
   // 1b - Recois les données lorsque la requête a fonctionné
   data: null,
+  // 1c - Recois le token user
+  token: null,
   // l'erreur lorsque la requête échoue
   error: null,
 };
@@ -31,9 +33,9 @@ const userFetching = (email, password) => ({
 });
 
 // 3b - Action de reception des données
-const userResolved = (token, data) => ({
+const userResolved = (token) => ({
   type: RESOLVED,
-  payload: { token, data },
+  payload: token,
 });
 
 // 3c - Action d'erreur
@@ -63,7 +65,8 @@ export async function fetchOrUpdateUser(store, email, password) {
       })
       .then((res) => {
         console.log(res);
-        store.dispatch(userResolved(res?.data?.body?.token));
+        const token = res?.data?.body?.token;
+        store.dispatch(userResolved(token));
       });
     //const data = await response.json();
     // si la requête fonctionne, on envoie les données à redux avec l'action resolved
@@ -108,7 +111,7 @@ export default function userReducer(state = initialState, action) {
         // si la requête est en cours
         if (draft.status === "pending" || draft.status === "updating") {
           // on passe en resolved et on sauvegarde les données
-          draft.data = action.payload;
+          draft.token = action.payload;
           draft.status = "resolved";
           return;
         }
