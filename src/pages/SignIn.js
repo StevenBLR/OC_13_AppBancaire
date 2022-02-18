@@ -4,9 +4,12 @@ import { useSelector, useStore } from "react-redux"; // hook react-redux permett
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
 import { setData } from "../data/localStorage";
-import { login, userRejected, userResolved } from "../features/user";
-import { selectToken } from "../utils/selectors";
-import { loginAction } from "../utils/store";
+import {
+  login,
+  resumeSession,
+  userRejected,
+  userResolved,
+} from "../features/user";
 
 function SignIn() {
   // On recupere le store grace au hook useStore()
@@ -30,6 +33,10 @@ function SignIn() {
     // },
   });
 
+  useEffect(() => {
+    if (resumeSession(store)) navigation("/user", { replace: false });
+  }, [navigation]);
+
   // Login with user credentials (Clic sur bt Login)
   const loginUser = async (userInput) => {
     console.log("User inputs", userInput);
@@ -39,9 +46,9 @@ function SignIn() {
       // Dispatch & stockage du token ds le local storage puis redirect vers page user
       .then((res) => {
         const token = res?.data?.body?.token;
-        store.dispatch(userResolved(token));
         setData("token", token); // Store token to local storage
         navigation("/user", { replace: false });
+        store.dispatch(userResolved(token));
       })
       // 2b - Si la requete not ok -->
       // Dispatch de l'erreur

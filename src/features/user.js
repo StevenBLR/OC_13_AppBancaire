@@ -1,6 +1,7 @@
 import axios from "axios";
 import produce from "immer";
 import { serverUrl } from "../data/apiInfos";
+import { getData } from "../data/localStorage";
 import { loginUser } from "../data/userRoutes";
 import { selectUser } from "../utils/selectors";
 
@@ -58,22 +59,28 @@ export async function login(store, email, password) {
   store.dispatch(userFetching(email, password));
   try {
     // on utilise fetch pour faire la requête
-    axInstance
-      .post(`${serverUrl}/user/login`, {
-        email,
-        password,
-      })
-      .then((res) => {
-        console.log(res);
-        const token = res?.data?.body?.token;
-        store.dispatch(userResolved(token));
-      });
+    return axInstance.post(`${serverUrl}/user/login`, {
+      email,
+      password,
+    });
     //const data = await response.json();
     // si la requête fonctionne, on envoie les données à redux avec l'action resolved
     //store.dispatch(userResolved(data));
   } catch (error) {
     // en cas d'erreur on infirme le store avec l'action rejected
     store.dispatch(userRejected(error));
+  }
+}
+
+// X - Verification de la presence d'un token ds local storage
+export function resumeSession(store) {
+  // 1 - Recuperation du local storage
+  const token = getData("token");
+  console.log("Token", token);
+  if (token) {
+    console.log("Token retrouvé, reprise de la session");
+    store.dispatch(userResolved(token));
+    return true;
   }
 }
 

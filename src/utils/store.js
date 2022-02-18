@@ -16,6 +16,7 @@ const reduxDevtools =
 const store = createStore(reducer, reduxDevtools);
 
 export default store;
+
 // const axInstance = axios.create({
 //   baseURL: serverUrl,
 // });
