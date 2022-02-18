@@ -27,25 +27,25 @@ const REJECTED = "user/rejected";
 
 // 3 - Definition des actions
 // 3a - Action d'envoi de la requete
-const userFetching = (email, password) => ({
+export const userFetching = (email, password) => ({
   type: FETCHING,
   payload: { email, password },
 });
 
 // 3b - Action de reception des données
-const userResolved = (token) => ({
+export const userResolved = (token) => ({
   type: RESOLVED,
   payload: token,
 });
 
 // 3c - Action d'erreur
-const userRejected = (error) => ({
+export const userRejected = (error) => ({
   type: REJECTED,
   payload: { error },
 });
 
 // 4 - Gestion des requetes asynchrones
-export async function fetchOrUpdateUser(store, email, password) {
+export async function login(store, email, password) {
   // 4a - Recuperation de l'etat de la requete
   const status = selectUser(store.getState()).status;
   console.log("Status", status);
