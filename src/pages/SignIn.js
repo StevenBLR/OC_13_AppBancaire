@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form"; // hook permettant de recuperer facil
 import { useSelector, useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
-import { fetchOrUpdateUser } from "../features/user";
+import { setData } from "../data/localStorage";
+import { login, userRejected, userResolved } from "../features/user";
+import { selectToken } from "../utils/selectors";
 import { loginAction } from "../utils/store";
 
 function SignIn() {
@@ -28,15 +30,25 @@ function SignIn() {
     // },
   });
 
-  // Login with user credentials
-  const onSubmit = async (userInput) => {
+  // Login with user credentials (Clic sur bt Login)
+  const loginUser = async (userInput) => {
     console.log("User inputs", userInput);
-    // On excecute la fonction dispatch avec une action
-    const res = await fetchOrUpdateUser(
-      store,
-      userInput.username,
-      userInput.password
-    );
+    // 1 - On appele la fonction login (feature/user)
+    login(store, userInput.username, userInput.password)
+      // 2a - Si la requete OK -->
+      // Dispatch & stockage du token ds le local storage puis redirect vers page user
+      .then((res) => {
+        const token = res?.data?.body?.token;
+        store.dispatch(userResolved(token));
+        setData("token", token); // Store token to local storage
+        navigation("/user", { replace: false });
+      })
+      // 2b - Si la requete not ok -->
+      // Dispatch de l'erreur
+      .catch((err) => {
+        // en cas d'erreur on infirme le store avec l'action rejected
+        store.dispatch(userRejected(err));
+      });
   };
 
   return (
@@ -45,7 +57,7 @@ function SignIn() {
         <i className="fa fa-user-circle sign-in-icon"></i>
         <h1>Sign In</h1>
         {/* On submit, on appelle fct react hook et ensuite ma fct onSubmit */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(loginUser)}>
           <div className="input-wrapper">
             <label for="username">Username</label>
             <input

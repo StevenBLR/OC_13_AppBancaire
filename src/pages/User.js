@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useStore } from "react-redux";
 
 function User() {
+  const store = useStore();
+
+  // useEffect() => {
+  //   // 1 - Verifier si un token existe
+
+  // }, [])
+
   return (
     <main className="main bg-dark">
       <div className="header">
