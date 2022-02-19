@@ -1,5 +1,6 @@
 import axios from "axios";
 import produce from "immer";
+import jwt from "jsonwebtoken";
 import { serverUrl } from "../data/apiInfos";
 import { getData } from "../data/localStorage";
 import { loginUser } from "../data/userRoutes";
@@ -76,11 +77,20 @@ export async function login(store, email, password) {
 export function resumeSession(store) {
   // 1 - Recuperation du local storage
   const token = getData("token");
-  console.log("Token", token);
+  // 2 - Si le token n'est pas vide
   if (token) {
-    console.log("Token retrouvé, reprise de la session");
-    store.dispatch(userResolved(token));
-    return true;
+    // X - Verification du token
+    jwt.verify(token, "shhhhh", function (err, decoded) {
+      if (err) {
+        console.log("Token not valid anymore");
+        return false;
+      } else {
+        // 3 - MAJ du state redux
+        console.log("Token retrouvé, reprise de la session");
+        store.dispatch(userResolved(token));
+        return true;
+      }
+    });
   }
 }
 
