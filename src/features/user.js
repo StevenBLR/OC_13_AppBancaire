@@ -109,43 +109,40 @@ export async function logout(store) {
  */
 export function isLogged(store) {
   // 1 - Verif du state Redux
+  let logged = false;
   let token = store.getState().user.token;
-  // 2 - Si token indispo via redux --> Verif du local storage
+  // 2a - Si token indispo via redux --> Verif du local storage
   if (!token) {
     token = getData("token");
-    // 3a - Si token trouvé en local --> Verif validité token
     if (token) {
-      // 4a - Si le token n'as pas expiré --> MAJ Redux avec local token
       if (!isExpired(token)) {
         store.dispatch(resumeLocalSession(token));
         console.log("Token retrouvé, reprise de la session");
-        return true;
+        logged = true;
       }
       // 4b - Si le token a expiré --> Return false
       else {
         console.log("Token expiré, reconnectez-vous");
-        return false;
       }
     }
-    // 3b - Si aucun token --> Verif validité token
-    else {
-    }
   }
+  // 2b - Token imported via redux
+  else logged = true;
 
-  // 2 - Si le token n'est pas vide
+  // 3a - Si token existant (redux ou local storage) --> Verif validité token
   if (token) {
-    // X - Verification du token
-    const tokenExpired = isExpired(token);
-    // X - Token n'est pas expiré
-    if (!tokenExpired) {
-      // X - MAJ redux e
+    // 4a - Si le token n'as pas expiré --> MAJ Redux avec local token
+    if (!isExpired(token)) {
       store.dispatch(resumeLocalSession(token));
-      return true;
-    } else {
-      console.log("Token not valid anymore");
-      return false;
+      logged = true;
+    }
+    // 4b - Si le token a expiré --> Return false
+    else {
+      console.log("Token expiré, reconnectez-vous");
+      logged = false;
     }
   }
+  return logged;
 }
 //#endregion
 

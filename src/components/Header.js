@@ -26,7 +26,7 @@ function Header() {
       <div>
         {userLoggedIn ? (
           <Link to="/" className="main-nav-item" onClick={() => logoutUser()}>
-            Logout
+            Sign out
           </Link>
         ) : (
           <Link to="/signin" className="main-nav-item">
