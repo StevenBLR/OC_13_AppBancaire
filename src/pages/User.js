@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useStore } from "react-redux";
 import { useNavigate } from "react-router";
-import { resumeSession } from "../features/user";
+import { isLogged } from "../features/user";
 import { selectUser } from "../utils/selectors";
 
 function User() {
@@ -11,7 +11,7 @@ function User() {
 
   useEffect(() => {
     // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
-    if (!resumeSession(store)) navigation("/signin", { replace: false });
+    if (!isLogged(store)) navigation("/signin", { replace: false });
   }, [user, navigation, store]);
 
   return (

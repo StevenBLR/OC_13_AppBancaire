@@ -3,6 +3,7 @@ import produce from "immer";
 //import jwt from "jsonwebtoken";
 //import { useJwt } from "react-jwt";
 import { isExpired, decodeToken } from "react-jwt";
+import { useSelector } from "react-redux";
 import { serverUrl } from "../data/apiInfos";
 import { getData, setData } from "../data/localStorage";
 import { loginUser } from "../data/userRoutes";
@@ -28,10 +29,11 @@ const initialState = {
 const FETCHING = "user/fetching";
 const RESOLVED = "user/resolved";
 const REJECTED = "user/rejected";
-const LOCALSESSION = "user/resumeLocalSession";
 const LOGOUT = "user/logout";
+const LOCALSESSION = "user/resumeLocalSession";
 
 // 3 - Definition des actions
+//#region USER ACTIONS
 // 3a - Action d'envoi de la requete
 export const userFetching = (email, password) => ({
   type: FETCHING,
@@ -58,7 +60,9 @@ export const resumeLocalSession = (token) => ({
 export const userLogout = () => ({
   type: LOGOUT,
 });
+//#endregion
 
+//#region FONCTIONS
 // 4 - Gestion de du Login User
 export async function login(store, email, password) {
   // 4a - Recuperation de l'etat de la requete
@@ -98,10 +102,36 @@ export async function logout(store) {
   store.dispatch(userLogout()); // Action logout inexistante --> State par defaut --> InitialState
 }
 
-// X - Verification de la presence d'un token ds local storage et MAJ Redux
-export function resumeSession(store) {
-  // 1 - Recuperation du local storage
-  const token = getData("token");
+/**
+ * Verification de la presence d'un token ds local storage et MAJ Redux
+ * @param {Object} store Store Redux
+ * @returns Boolean represention loggin state (true = session active / false = session inactive)
+ */
+export function isLogged(store) {
+  // 1 - Verif du state Redux
+  let token = store.getState().user.token;
+  // 2 - Si token indispo via redux --> Verif du local storage
+  if (!token) {
+    token = getData("token");
+    // 3a - Si token trouvé en local --> Verif validité token
+    if (token) {
+      // 4a - Si le token n'as pas expiré --> MAJ Redux avec local token
+      if (!isExpired(token)) {
+        store.dispatch(resumeLocalSession(token));
+        console.log("Token retrouvé, reprise de la session");
+        return true;
+      }
+      // 4b - Si le token a expiré --> Return false
+      else {
+        console.log("Token expiré, reconnectez-vous");
+        return false;
+      }
+    }
+    // 3b - Si aucun token --> Verif validité token
+    else {
+    }
+  }
+
   // 2 - Si le token n'est pas vide
   if (token) {
     // X - Verification du token
@@ -109,7 +139,6 @@ export function resumeSession(store) {
     // X - Token n'est pas expiré
     if (!tokenExpired) {
       // X - MAJ redux e
-      console.log("Token retrouvé, reprise de la session");
       store.dispatch(resumeLocalSession(token));
       return true;
     } else {
@@ -118,6 +147,7 @@ export function resumeSession(store) {
     }
   }
 }
+//#endregion
 
 // 5 - Definition du sous reducer "userReducer"
 export default function userReducer(state = initialState, action) {
