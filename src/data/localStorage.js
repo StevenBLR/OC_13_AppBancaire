@@ -13,5 +13,5 @@ export function setData(label, data) {
  * @returns Promise containing stored item
  */
 export function getData(label) {
-  return localStorage.getItem(label);
+  return JSON.parse(localStorage.getItem(label));
 }

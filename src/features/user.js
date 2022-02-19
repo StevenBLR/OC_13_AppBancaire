@@ -1,8 +1,10 @@
 import axios from "axios";
 import produce from "immer";
-import jwt from "jsonwebtoken";
+//import jwt from "jsonwebtoken";
+//import { useJwt } from "react-jwt";
+import { isExpired, decodeToken } from "react-jwt";
 import { serverUrl } from "../data/apiInfos";
-import { getData } from "../data/localStorage";
+import { getData, setData } from "../data/localStorage";
 import { loginUser } from "../data/userRoutes";
 import { selectUser } from "../utils/selectors";
 
@@ -13,7 +15,7 @@ const axInstance = axios.create({
 // 1 - Defininiton initialState
 const initialState = {
   // 1a - Recois le statut et permet de suivre l'état de la requête
-  status: "void",
+  loginStatus: "void",
   // 1b - Recois les données lorsque la requête a fonctionné
   data: null,
   // 1c - Recois le token user
@@ -26,6 +28,8 @@ const initialState = {
 const FETCHING = "user/fetching";
 const RESOLVED = "user/resolved";
 const REJECTED = "user/rejected";
+const LOCALSESSION = "user/resumeLocalSession";
+const LOGOUT = "user/logout";
 
 // 3 - Definition des actions
 // 3a - Action d'envoi de la requete
@@ -46,12 +50,19 @@ export const userRejected = (error) => ({
   payload: { error },
 });
 
-// 4 - Gestion des requetes asynchrones
+export const resumeLocalSession = (token) => ({
+  type: LOCALSESSION,
+  payload: token,
+});
+
+export const userLogout = () => ({
+  type: LOGOUT,
+});
+
+// 4 - Gestion de du Login User
 export async function login(store, email, password) {
   // 4a - Recuperation de l'etat de la requete
   const status = selectUser(store.getState()).status;
-  console.log("Status", status);
-  console.log("userData =", email, password);
   // 4b - Arret de l'execution si la requete est deja en cours
   if (status === "pending" || status === "updating") {
     return;
@@ -73,24 +84,38 @@ export async function login(store, email, password) {
   }
 }
 
-// X - Verification de la presence d'un token ds local storage
+// X - Gestion du Logout User
+export async function logout(store) {
+  // Verification du status
+  const status = selectUser(store.getState()).status;
+  if (status === "pending" || status === "updating") {
+    return;
+  }
+
+  // Supprimer le token du local storage
+  setData("token", "");
+  // MAJ Redux
+  store.dispatch(userLogout()); // Action logout inexistante --> State par defaut --> InitialState
+}
+
+// X - Verification de la presence d'un token ds local storage et MAJ Redux
 export function resumeSession(store) {
   // 1 - Recuperation du local storage
   const token = getData("token");
   // 2 - Si le token n'est pas vide
   if (token) {
     // X - Verification du token
-    jwt.verify(token, "shhhhh", function (err, decoded) {
-      if (err) {
-        console.log("Token not valid anymore");
-        return false;
-      } else {
-        // 3 - MAJ du state redux
-        console.log("Token retrouvé, reprise de la session");
-        store.dispatch(userResolved(token));
-        return true;
-      }
-    });
+    const tokenExpired = isExpired(token);
+    // X - Token n'est pas expiré
+    if (!tokenExpired) {
+      // X - MAJ redux e
+      console.log("Token retrouvé, reprise de la session");
+      store.dispatch(resumeLocalSession(token));
+      return true;
+    } else {
+      console.log("Token not valid anymore");
+      return false;
+    }
   }
 }
 
@@ -102,22 +127,22 @@ export default function userReducer(state = initialState, action) {
       // si l'action est de type FETCHING
       case FETCHING: {
         // si le statut est void
-        if (draft.status === "void") {
+        if (draft.loginStatus === "void") {
           // on passe en pending
-          draft.status = "pending";
+          draft.loginStatus = "pending";
           return;
         }
         // si le statut est rejected
-        if (draft.status === "rejected") {
+        if (draft.loginStatus === "rejected") {
           // on supprime l'erreur et on passe en pending
           draft.error = null;
-          draft.status = "pending";
+          draft.loginStatus = "pending";
           return;
         }
         // si le statut est resolved
-        if (draft.status === "resolved") {
+        if (draft.loginStatus === "resolved") {
           // on passe en updating (requête en cours mais des données sont déjà présentent)
-          draft.status = "updating";
+          draft.loginStatus = "updating";
           return;
         }
         // sinon l'action est ignorée
@@ -126,10 +151,13 @@ export default function userReducer(state = initialState, action) {
       // si l'action est de type RESOLVED
       case RESOLVED: {
         // si la requête est en cours
-        if (draft.status === "pending" || draft.status === "updating") {
+        if (
+          draft.loginStatus === "pending" ||
+          draft.loginStatus === "updating"
+        ) {
           // on passe en resolved et on sauvegarde les données
           draft.token = action.payload;
-          draft.status = "resolved";
+          draft.loginStatus = "resolved";
           return;
         }
         // sinon l'action est ignorée
@@ -138,15 +166,30 @@ export default function userReducer(state = initialState, action) {
       // si l'action est de type REJECTED
       case REJECTED: {
         // si la requête est en cours
-        if (draft.status === "pending" || draft.status === "updating") {
+        if (
+          draft.loginStatus === "pending" ||
+          draft.loginStatus === "updating"
+        ) {
           // on passe en rejected, on sauvegarde l'erreur et on supprime les données
-          draft.status = "rejected";
+          draft.loginStatus = "rejected";
           draft.error = action.payload;
           draft.data = null;
           return;
         }
         // sinon l'action est ignorée
         return;
+      }
+      // si l'action est de type LOCAL SESSION
+      case LOCALSESSION: {
+        if (action.payload) {
+          draft.token = action.payload;
+          draft.loginStatus = "resolved";
+        }
+        return;
+      }
+      // si l'action est de type LOGOUT --> Reset to initialState
+      case LOGOUT: {
+        return initialState;
       }
       // Sinon (action invalide ou initialisation)
       default:

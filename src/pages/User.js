@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
-import { useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import { useNavigate } from "react-router";
 import { resumeSession } from "../features/user";
+import { selectUser } from "../utils/selectors";
 
 function User() {
   const store = useStore();
   const navigation = useNavigate();
+  const user = useSelector(selectUser);
 
-  // useEffect(() => {
-  //   // 1 - Si token n'est plus valable --> Redirect vers signin page
-  //   if (!resumeSession(store)) navigation("/signin", { replace: false });
-  // }, [navigation, store]);
+  useEffect(() => {
+    // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
+    if (!resumeSession(store)) navigation("/signin", { replace: false });
+  }, [user, navigation, store]);
 
   return (
     <main className="main bg-dark">
