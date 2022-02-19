@@ -6,7 +6,6 @@ import { selectUser } from "../utils/selectors";
 
 function Header() {
   const store = useStore();
-  //const userLoggedIn = store.getState().user.token;
   const userLoggedIn = useSelector(selectUser).token;
 
   // Logout
