@@ -18,24 +18,6 @@ function User() {
   const navigation = useNavigate();
   const user = useSelector(selectUser);
 
-  /** Parametrage hook form
-   *
-   * @param {Function} register Connect any input to hook form system
-   * @param {Function} handleSubmit Called when submit function is called on form
-   * @param {Object} formState Used to handle errors
-   * Documentation : https://react-hook-form.com/get-started/#Quickstart
-   */
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      firstName: user?.data?.firstName || "Tony",
-      lastName: user?.data?.lastName || "Jarvis",
-    },
-  });
-
   useEffect(() => {
     // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
     if (!isLogged(store)) navigation("/signin", { replace: false });
@@ -67,6 +49,19 @@ function User() {
       });
   }
 
+  /** Parametrage hook form
+   *
+   * @param {Function} register Connect any input to hook form system
+   * @param {Function} handleSubmit Called when submit function is called on form
+   * @param {Object} formState Used to handle errors
+   * Documentation : https://react-hook-form.com/get-started/#Quickstart
+   */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   return (
     <main className="main bg-dark">
       <div className="header">
@@ -80,8 +75,20 @@ function User() {
         {editMode ? (
           <form className="edit-name-form" onSubmit={handleSubmit(submitName)}>
             <div>
-              <input type="text" name="firstname" />
-              <input type="text" name="lastname" />
+              <input
+                type="text"
+                name="firstname"
+                placeholder={
+                  user?.data?.firstName ? user.data.firstName : "firstName"
+                }
+              />
+              <input
+                type="text"
+                name="lastname"
+                placeholder={
+                  user?.data?.lastName ? user.data.lastName : "lastName"
+                }
+              />
             </div>
             <input type="submit" value="Save" />
             <input
