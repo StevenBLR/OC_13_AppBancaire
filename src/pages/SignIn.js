@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"; // hook permettant de recuperer facil
 import { useSelector, useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
-import { setData } from "../data/localStorage";
+import { setData } from "../utils/localStorage";
 import { login, isLogged, userRejected, userResolved } from "../features/user";
 
 function SignIn() {

@@ -1,8 +1,4 @@
 import { createStore, combineReducers } from "redux";
-import axios from "axios";
-import produce from "immer";
-import { serverUrl } from "../data/apiInfos";
-import { setData } from "../data/localStorage";
 import userReducer from "../features/user";
 
 const reducer = combineReducers({

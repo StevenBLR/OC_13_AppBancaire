@@ -4,9 +4,9 @@ import produce from "immer";
 //import { useJwt } from "react-jwt";
 import { isExpired, decodeToken } from "react-jwt";
 import { useSelector } from "react-redux";
-import { serverUrl } from "../data/apiInfos";
-import { getData, setData } from "../data/localStorage";
-import { loginUser } from "../data/userRoutes";
+import { serverUrl } from "../utils/apiInfos";
+import { getData, setData } from "../utils/localStorage";
+import { loginUser } from "../utils/userRoutes";
 import { selectUser } from "../utils/selectors";
 
 const axInstance = axios.create({
