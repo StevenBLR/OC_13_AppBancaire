@@ -8,13 +8,11 @@ import {
   userSetProfil,
 } from "../features/user";
 import { selectUser, selectUserData } from "../utils/selectors";
-import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useForm } from "react-hook-form";
 
 function User() {
   const [editMode, setEditMode] = useState(false);
   const store = useStore();
-  const dispatch = useDispatch();
   const navigation = useNavigate();
   const user = useSelector(selectUser);
 
@@ -40,7 +38,6 @@ function User() {
   async function submitName(userInput) {
     const fname = userInput.firstName;
     const lname = userInput.lastName;
-    console.log(fname, lname);
     updateName(store, fname, lname)
       .then((res, err) => {
         console.log(res, err);
@@ -93,7 +90,11 @@ function User() {
                 }
               />
             </div>
-            <input type="submit" value="Save" />
+            <input
+              type="submit"
+              value="Save"
+              //onClick={() => navigation("/signin", { replace: false })}
+            />
             <input
               type="button"
               value="Cancel"

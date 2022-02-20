@@ -152,6 +152,7 @@ export function isLogged(store) {
   }
   return logged;
 }
+
 /**
  * Mise a jour du nom/prenom
  * @param {Object} store Store Redux
@@ -181,7 +182,6 @@ export function updateName(store, firstName, lastName) {
   };
 
   // 6 - Retour de la promesse
-  console.log(firstName, lastName);
   return axInstance.put(
     `${serverUrl}/user/profile`,
     {
