@@ -27,6 +27,7 @@ const FETCHING = "user/fetching";
 const RESOLVED = "user/resolved";
 const REJECTED = "user/rejected";
 const LOGOUT = "user/logout";
+const SETPROFIL = "user/setProfile";
 const LOCALSESSION = "user/resumeLocalSession";
 
 // 3 - Definition des actions
@@ -56,6 +57,11 @@ export const resumeLocalSession = (token) => ({
 
 export const userLogout = () => ({
   type: LOGOUT,
+});
+
+export const userSetProfil = (data) => ({
+  type: SETPROFIL,
+  payload: data,
 });
 //#endregion
 
@@ -148,7 +154,7 @@ export function isLogged(store) {
   return logged;
 }
 /**
- * Mise a jour du nom prenom
+ * Mise a jour du nom/prenom
  * @param {Object} store Store Redux
  * @param {String} firstName Nouveau prenom
  * @param {String} lastName Nouveau nom
@@ -184,6 +190,25 @@ export function updateName(store, firstName, lastName) {
     },
     reqConfig
   );
+}
+
+export function getProfil(store) {
+  // 1 - Recuperation du token
+  const token = selectUser(store.getState()).token;
+  // 2 - Arret si token expiré
+  if (token && isExpired(token)) {
+    console.log("Impossible de recuperer le profil, le token a expiré");
+    return;
+  }
+  // 3 - Preparation de l'entete de la requete (ajout token)
+  const reqConfig = {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+
+  // 4 - Retour de la promesse
+  return axInstance.post(`${serverUrl}/user/profile`, {}, reqConfig);
 }
 
 //#endregion
@@ -259,6 +284,9 @@ export default function userReducer(state = initialState, action) {
       // si l'action est de type LOGOUT --> Reset to initialState
       case LOGOUT: {
         return initialState;
+      }
+      case SETPROFIL: {
+        if (action.payload) draft.data = action.payload;
       }
       // Sinon (action invalide ou initialisation)
       default:

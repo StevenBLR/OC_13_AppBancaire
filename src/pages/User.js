@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useStore } from "react-redux";
 import { useNavigate } from "react-router";
-import { isLogged, updateName } from "../features/user";
-import { selectUser } from "../utils/selectors";
+import {
+  getProfil,
+  isLogged,
+  updateName,
+  userSetProfil,
+} from "../features/user";
+import { selectUser, selectUserData } from "../utils/selectors";
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 import { useForm } from "react-hook-form";
 
 function User() {
   const [editMode, setEditMode] = useState(false);
   const store = useStore();
+  const dispatch = useDispatch();
   const navigation = useNavigate();
   const user = useSelector(selectUser);
 
@@ -25,8 +31,8 @@ function User() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      firstName: "Tony",
-      lastName: "Jarvis",
+      firstName: user?.data?.firstName || "Tony",
+      lastName: user?.data?.lastName || "Jarvis",
     },
   });
 
@@ -34,6 +40,20 @@ function User() {
     // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
     if (!isLogged(store)) navigation("/signin", { replace: false });
   }, [user, navigation, store]);
+
+  useEffect(() => {
+    // 2 - Recuperation du profil user
+    if (!store.getState().user.data) {
+      getUserProfil();
+    }
+  }, []);
+
+  async function getUserProfil() {
+    getProfil(store).then((res) => {
+      console.log("User profile", res.data.body);
+      store.dispatch(userSetProfil(res?.data?.body));
+    });
+  }
 
   async function submitName(userInput) {
     const fname = userInput.firstName;
@@ -53,7 +73,9 @@ function User() {
         <h1>
           Welcome back
           <br />
-          Tony Jarvis!
+          {`${user?.data?.firstName ? user.data.firstName : ""} ${
+            user?.data?.lastName ? user.data.lastName : ""
+          } !`}
         </h1>
         {editMode ? (
           <form className="edit-name-form" onSubmit={handleSubmit(submitName)}>
