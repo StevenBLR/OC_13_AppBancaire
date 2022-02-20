@@ -1,7 +1,6 @@
 import axios from "axios";
 import produce from "immer";
 import { isExpired } from "react-jwt";
-import { useSelector } from "react-redux";
 import { serverUrl } from "../utils/apiInfos";
 import { getData, setData } from "../utils/localStorage";
 import { selectUser } from "../utils/selectors";
@@ -182,11 +181,12 @@ export function updateName(store, firstName, lastName) {
   };
 
   // 6 - Retour de la promesse
+  console.log(firstName, lastName);
   return axInstance.put(
     `${serverUrl}/user/profile`,
     {
-      firstName,
-      lastName,
+      firstName: firstName,
+      lastName: lastName,
     },
     reqConfig
   );
@@ -287,6 +287,7 @@ export default function userReducer(state = initialState, action) {
       }
       case SETPROFIL: {
         if (action.payload) draft.data = action.payload;
+        return;
       }
       // Sinon (action invalide ou initialisation)
       default:

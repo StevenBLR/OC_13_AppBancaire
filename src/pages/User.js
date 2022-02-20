@@ -40,6 +40,7 @@ function User() {
   async function submitName(userInput) {
     const fname = userInput.firstName;
     const lname = userInput.lastName;
+    console.log(fname, lname);
     updateName(store, fname, lname)
       .then((res, err) => {
         console.log(res, err);
@@ -76,15 +77,17 @@ function User() {
           <form className="edit-name-form" onSubmit={handleSubmit(submitName)}>
             <div>
               <input
+                {...register("firstName")}
                 type="text"
-                name="firstname"
+                name="firstName"
                 placeholder={
                   user?.data?.firstName ? user.data.firstName : "firstName"
                 }
               />
               <input
+                {...register("lastName")}
                 type="text"
-                name="lastname"
+                name="lastName"
                 placeholder={
                   user?.data?.lastName ? user.data.lastName : "lastName"
                 }
