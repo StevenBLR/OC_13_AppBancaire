@@ -1,12 +1,8 @@
 import axios from "axios";
 import produce from "immer";
-//import jwt from "jsonwebtoken";
-//import { useJwt } from "react-jwt";
-import { isExpired, decodeToken } from "react-jwt";
-import { useSelector } from "react-redux";
+import { isExpired } from "react-jwt";
 import { serverUrl } from "../utils/apiInfos";
 import { getData, setData } from "../utils/localStorage";
-import { loginUser } from "../utils/userRoutes";
 import { selectUser } from "../utils/selectors";
 
 const axInstance = axios.create({

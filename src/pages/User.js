@@ -3,6 +3,7 @@ import { useSelector, useStore } from "react-redux";
 import { useNavigate } from "react-router";
 import { isLogged } from "../features/user";
 import { selectUser } from "../utils/selectors";
+import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
 
 function User() {
   const store = useStore();
@@ -14,6 +15,8 @@ function User() {
     if (!isLogged(store)) navigation("/signin", { replace: false });
   }, [user, navigation, store]);
 
+  function editName() {}
+
   return (
     <main className="main bg-dark">
       <div className="header">
@@ -22,7 +25,9 @@ function User() {
           <br />
           Tony Jarvis!
         </h1>
-        <button className="edit-button">Edit Name</button>
+        <button className="edit-button" onClick={() => editName}>
+          Edit Name
+        </button>
       </div>
       <h2 className="sr-only">Accounts</h2>
       <section className="account">

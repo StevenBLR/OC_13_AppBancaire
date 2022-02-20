@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form"; // hook permettant de recuperer facilement le contenu d'un formulaire
-import { useSelector, useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
-import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
+import { useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
 import { setData } from "../utils/localStorage";
 import { login, isLogged, userRejected, userResolved } from "../features/user";
@@ -60,7 +59,7 @@ function SignIn() {
         {/* On submit, on appelle fct react hook et ensuite ma fct onSubmit */}
         <form onSubmit={handleSubmit(loginUser)}>
           <div className="input-wrapper">
-            <label for="username">Username</label>
+            <label htmlFor="username">Username</label>
             <input
               {...register("username", {
                 required: "Ce champ est obligatoire",
@@ -76,7 +75,7 @@ function SignIn() {
           {/* Show userName error message if available (from hook form) */}
           <p>{errors.userName?.message}</p>
           <div className="input-wrapper">
-            <label for="password">Password</label>
+            <label htmlFor="password">Password</label>
             <input
               {...register("password", {
                 required: "Ce champ est obligatoire",
@@ -93,7 +92,7 @@ function SignIn() {
           <p>{errors.password?.message}</p>
           <div className="input-remember">
             <input {...register("remember")} type="checkbox" id="remember-me" />
-            <label for="remember-me">Remember me</label>
+            <label htmlFor="remember-me">Remember me</label>
           </div>
           {/* <!-- PLACEHOLDER DUE TO STATIC SITE --> */}
 

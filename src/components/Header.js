@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector, useStore } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "../features/user";
