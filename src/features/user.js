@@ -1,6 +1,7 @@
 import axios from "axios";
 import produce from "immer";
 import { isExpired } from "react-jwt";
+import { useSelector } from "react-redux";
 import { serverUrl } from "../utils/apiInfos";
 import { getData, setData } from "../utils/localStorage";
 import { selectUser } from "../utils/selectors";
@@ -59,10 +60,17 @@ export const userLogout = () => ({
 //#endregion
 
 //#region FONCTIONS
-// 4 - Gestion de du Login User
+
+/**
+ * Gestion du Login User
+ * @param {Object} store Store Redux
+ * @param {String} email Email entré par user
+ * @param {String} password Mot de passe entré par user
+ * @returns Promesse contenant la requete de login envoyée au backend
+ */
 export async function login(store, email, password) {
   // 4a - Recuperation de l'etat de la requete
-  const status = selectUser(store.getState()).status;
+  const status = selectUser(store.getState()).loginStatus;
   // 4b - Arret de l'execution si la requete est deja en cours
   if (status === "pending" || status === "updating") {
     return;
@@ -70,24 +78,23 @@ export async function login(store, email, password) {
   // 4c - Lancement de l'action fetch avec les données user
   store.dispatch(userFetching(email, password));
   try {
-    // on utilise fetch pour faire la requête
     return axInstance.post(`${serverUrl}/user/login`, {
       email,
       password,
     });
-    //const data = await response.json();
-    // si la requête fonctionne, on envoie les données à redux avec l'action resolved
-    //store.dispatch(userResolved(data));
   } catch (error) {
     // en cas d'erreur on infirme le store avec l'action rejected
     store.dispatch(userRejected(error));
   }
 }
 
-// X - Gestion du Logout User
+/**
+ * Gestion du Logout User ( Reset Local storage + Redux state )
+ * @param {Object} store Store Redux
+ */
 export async function logout(store) {
   // Verification du status
-  const status = selectUser(store.getState()).status;
+  const status = selectUser(store.getState()).loginStatus;
   if (status === "pending" || status === "updating") {
     return;
   }
@@ -101,7 +108,7 @@ export async function logout(store) {
 /**
  * Verification de la presence d'un token ds local storage et MAJ Redux
  * @param {Object} store Store Redux
- * @returns Boolean represention loggin state (true = session active / false = session inactive)
+ * @returns Boolean representant l'etat du login (true = session active / false = session inactive)
  */
 export function isLogged(store) {
   // 1 - Verif du state Redux
@@ -140,6 +147,45 @@ export function isLogged(store) {
   }
   return logged;
 }
+/**
+ * Mise a jour du nom prenom
+ * @param {Object} store Store Redux
+ * @param {String} firstName Nouveau prenom
+ * @param {String} lastName Nouveau nom
+ * @returns Promesse contenant la requete de login envoyée au backend
+ */
+export function updateName(store, firstName, lastName) {
+  // 1 - Recuperation du statut login
+  const status = selectUser(store.getState()).loginStatus;
+  // 2 - Recuperation du token
+  const token = selectUser(store.getState()).token;
+  // 3 - Arret si statut en attente
+  if (status === "pending" || status === "updating") {
+    return;
+  }
+  // 4 - Arret si token expiré
+  if (isExpired(token)) {
+    console.log("Impossible de modifier le profil, le token a expiré");
+    return;
+  }
+  // 5 - Preparation de l'entete de la requete (ajout token)
+  const reqConfig = {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+
+  // 6 - Retour de la promesse
+  return axInstance.put(
+    `${serverUrl}/user/profile`,
+    {
+      firstName,
+      lastName,
+    },
+    reqConfig
+  );
+}
+
 //#endregion
 
 // 5 - Definition du sous reducer "userReducer"

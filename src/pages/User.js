@@ -1,21 +1,51 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useStore } from "react-redux";
 import { useNavigate } from "react-router";
-import { isLogged } from "../features/user";
+import { isLogged, updateName } from "../features/user";
 import { selectUser } from "../utils/selectors";
 import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
+import { useForm } from "react-hook-form";
 
 function User() {
+  const [editMode, setEditMode] = useState(false);
   const store = useStore();
   const navigation = useNavigate();
   const user = useSelector(selectUser);
+
+  /** Parametrage hook form
+   *
+   * @param {Function} register Connect any input to hook form system
+   * @param {Function} handleSubmit Called when submit function is called on form
+   * @param {Object} formState Used to handle errors
+   * Documentation : https://react-hook-form.com/get-started/#Quickstart
+   */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      firstName: "Tony",
+      lastName: "Jarvis",
+    },
+  });
 
   useEffect(() => {
     // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
     if (!isLogged(store)) navigation("/signin", { replace: false });
   }, [user, navigation, store]);
 
-  function editName() {}
+  async function submitName(userInput) {
+    const fname = userInput.firstName;
+    const lname = userInput.lastName;
+    updateName(store, fname, lname)
+      .then((res, err) => {
+        console.log(res, err);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   return (
     <main className="main bg-dark">
@@ -25,9 +55,24 @@ function User() {
           <br />
           Tony Jarvis!
         </h1>
-        <button className="edit-button" onClick={() => editName}>
-          Edit Name
-        </button>
+        {editMode ? (
+          <form className="edit-name-form" onSubmit={handleSubmit(submitName)}>
+            <div>
+              <input type="text" name="firstname" />
+              <input type="text" name="lastname" />
+            </div>
+            <input type="submit" value="Save" />
+            <input
+              type="button"
+              value="Cancel"
+              onClick={() => setEditMode(false)}
+            />
+          </form>
+        ) : (
+          <button className="edit-button" onClick={() => setEditMode(true)}>
+            Edit Name
+          </button>
+        )}
       </div>
       <h2 className="sr-only">Accounts</h2>
       <section className="account">

@@ -10,6 +10,7 @@ function SignIn() {
   const store = useStore();
   const minLength = 1;
   const navigation = useNavigate();
+
   /** Parametrage hook form
    *
    * @param {Function} register Connect any input to hook form system
