@@ -11,7 +11,8 @@ import { selectUser, selectUserData } from "../utils/selectors";
 import { useForm } from "react-hook-form";
 
 function User() {
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(false); // Parametrage hook form
+  const { register, handleSubmit } = useForm();
   const store = useStore();
   const navigation = useNavigate();
   const user = useSelector(selectUser);
@@ -38,6 +39,7 @@ function User() {
   async function submitName(userInput) {
     const fname = userInput.firstName;
     const lname = userInput.lastName;
+    // 1 - Use user sub reducer fonction updateName
     updateName(store, fname, lname)
       .then((res, err) => {
         console.log(res, err);
@@ -45,20 +47,11 @@ function User() {
       .catch((err) => {
         console.log(err);
       });
+    // 2 - Disable edit mode after validation
+    setEditMode(false);
+    // 3 -
+    //navigation("/signin", { replace: false });
   }
-
-  /** Parametrage hook form
-   *
-   * @param {Function} register Connect any input to hook form system
-   * @param {Function} handleSubmit Called when submit function is called on form
-   * @param {Object} formState Used to handle errors
-   * Documentation : https://react-hook-form.com/get-started/#Quickstart
-   */
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
 
   return (
     <main className="main bg-dark">
@@ -75,6 +68,7 @@ function User() {
             <div>
               <input
                 {...register("firstName")}
+                className="edit-name-form__text-field"
                 type="text"
                 name="firstName"
                 placeholder={
@@ -83,6 +77,7 @@ function User() {
               />
               <input
                 {...register("lastName")}
+                className="edit-name-form__text-field"
                 type="text"
                 name="lastName"
                 placeholder={
@@ -91,11 +86,13 @@ function User() {
               />
             </div>
             <input
+              className="edit-name-form__bt"
               type="submit"
               value="Save"
-              //onClick={() => navigation("/signin", { replace: false })}
+              onSubmit={() => setEditMode(false)}
             />
             <input
+              className="edit-name-form__bt"
               type="button"
               value="Cancel"
               onClick={() => setEditMode(false)}
