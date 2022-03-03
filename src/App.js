@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Header from "./components/Header";
@@ -12,8 +12,8 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />}></Route>
-        <Route path="/signin" element={<SignIn />}></Route>
         <Route path="/user" element={<User />}></Route>
+        <Route path="/signin" element={<SignIn />}></Route>
       </Routes>
       <Footer />
     </Router>

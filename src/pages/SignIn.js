@@ -1,19 +1,18 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form"; // hook permettant de recuperer facilement le contenu d'un formulaire
-import { useSelector, useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
-import { useDispatch } from "react-redux"; // hook react-redux permettant de lancer une action (run action)
+import { useStore } from "react-redux"; // hook react-redux permettant de lire le state redux
 import { useNavigate } from "react-router"; // hook utilisé pour faire une redirection
-import { loginAction } from "../data/redux";
+import { setData } from "../utils/localStorage";
+import { login, isLogged, userRejected, userResolved } from "../features/user";
 
 function SignIn() {
-  const navigation = useNavigate();
-  const dispatch = useDispatch(); // On utilise le hook useDispatch dans notre composant
+  // On recupere le store grace au hook useStore()
   const store = useStore();
-  //const userLogged = useSelector((state) => state.loggedIn); // On stock l'état de notre substate "logged in"
-  const minLength = 4;
+  const minLength = 1;
+  const navigation = useNavigate();
 
-  /**
-   * Parametrage hook form
+  /** Parametrage hook form
+   *
    * @param {Function} register Connect any input to hook form system
    * @param {Function} handleSubmit Called when submit function is called on form
    * @param {Object} formState Used to handle errors
@@ -29,24 +28,29 @@ function SignIn() {
     // },
   });
 
-  console.log("Hook form status", errors);
+  useEffect(() => {
+    if (isLogged(store)) navigation("/user", { replace: false });
+  }, [navigation, store]);
 
-  // Login with user credentials
-  const onSubmit = (userInput) => {
-    console.log(userInput);
-    // On excecute la fonction dispatch avec une action
-    dispatch(loginAction(userInput.userName, userInput.password));
+  // Login with user credentials (Clic sur bt Login)
+  const loginUser = async (userInput) => {
+    // 1 - On appele la fonction login (feature/user)
+    login(store, userInput.username, userInput.password)
+      // 2a - Si la requete OK -->
+      // Dispatch & stockage du token ds le local storage puis redirect vers page user
+      .then((res) => {
+        const token = res?.data?.body?.token;
+        if (userInput.remember) setData("token", token); // Store token to local storage
+        navigation("/user", { replace: false });
+        store.dispatch(userResolved(token));
+      })
+      // 2b - Si la requete not ok -->
+      // Dispatch de l'erreur
+      .catch((err) => {
+        // en cas d'erreur on infirme le store avec l'action rejected
+        store.dispatch(userRejected(err));
+      });
   };
-  // if (userLogged) {
-  //   console.log("User Logged (Signin page)");
-  // }
-
-  // Redirect user to previous page if he is already logged in
-  // useEffect(() => {
-  //   if (!userLogged) {
-  //     navigation(-1); // Go back to previous page
-  //   }
-  // }, [userLogged, navigation]);
 
   return (
     <main className="main bg-dark">
@@ -54,11 +58,11 @@ function SignIn() {
         <i className="fa fa-user-circle sign-in-icon"></i>
         <h1>Sign In</h1>
         {/* On submit, on appelle fct react hook et ensuite ma fct onSubmit */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(loginUser)}>
           <div className="input-wrapper">
-            <label for="username">Username</label>
+            <label htmlFor="username">Username</label>
             <input
-              {...register("userName", {
+              {...register("username", {
                 required: "Ce champ est obligatoire",
                 minLength: {
                   value: minLength,
@@ -72,7 +76,7 @@ function SignIn() {
           {/* Show userName error message if available (from hook form) */}
           <p>{errors.userName?.message}</p>
           <div className="input-wrapper">
-            <label for="password">Password</label>
+            <label htmlFor="password">Password</label>
             <input
               {...register("password", {
                 required: "Ce champ est obligatoire",
@@ -88,12 +92,8 @@ function SignIn() {
           {/* Show password error message if available (from hook form) */}
           <p>{errors.password?.message}</p>
           <div className="input-remember">
-            <input
-              {...register("remember-me")}
-              type="checkbox"
-              id="remember-me"
-            />
-            <label for="remember-me">Remember me</label>
+            <input {...register("remember")} type="checkbox" id="remember-me" />
+            <label htmlFor="remember-me">Remember me</label>
           </div>
           {/* <!-- PLACEHOLDER DUE TO STATIC SITE --> */}
 
@@ -107,5 +107,4 @@ function SignIn() {
     </main>
   );
 }
-
 export default SignIn;

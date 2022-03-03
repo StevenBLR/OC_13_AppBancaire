@@ -1,15 +1,108 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useStore } from "react-redux";
+import { useNavigate } from "react-router";
+import {
+  getProfil,
+  isLogged,
+  updateName,
+  userSetProfil,
+} from "../features/user";
+import { selectUser, selectUserData } from "../utils/selectors";
+import { useForm } from "react-hook-form";
 
 function User() {
+  const [editMode, setEditMode] = useState(false); // Parametrage hook form
+  const { register, handleSubmit } = useForm();
+  const store = useStore();
+  const navigation = useNavigate();
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
+    if (!isLogged(store)) navigation("/signin", { replace: false });
+  }, [user, navigation, store]);
+
+  useEffect(() => {
+    // 2 - Recuperation du profil user
+    if (!store.getState().user.data) {
+      getUserProfil();
+    }
+  }, []);
+
+  async function getUserProfil() {
+    getProfil(store).then((res) => {
+      console.log("User profile", res.data.body);
+      store.dispatch(userSetProfil(res?.data?.body));
+    });
+  }
+
+  async function submitName(userInput) {
+    const fname = userInput.firstName;
+    const lname = userInput.lastName;
+    // 1 - Use user sub reducer fonction updateName
+    updateName(store, fname, lname)
+      .then((res, err) => {
+        console.log(res, err);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    // 2 - Disable edit mode after validation
+    setEditMode(false);
+    // 3 -
+    //navigation("/signin", { replace: false });
+  }
+
   return (
     <main className="main bg-dark">
       <div className="header">
         <h1>
           Welcome back
           <br />
-          Tony Jarvis!
+          {`${user?.data?.firstName ? user.data.firstName : ""} ${
+            user?.data?.lastName ? user.data.lastName : ""
+          } !`}
         </h1>
-        <button className="edit-button">Edit Name</button>
+        {editMode ? (
+          <form className="edit-name-form" onSubmit={handleSubmit(submitName)}>
+            <div>
+              <input
+                {...register("firstName")}
+                className="edit-name-form__text-field"
+                type="text"
+                name="firstName"
+                placeholder={
+                  user?.data?.firstName ? user.data.firstName : "firstName"
+                }
+              />
+              <input
+                {...register("lastName")}
+                className="edit-name-form__text-field"
+                type="text"
+                name="lastName"
+                placeholder={
+                  user?.data?.lastName ? user.data.lastName : "lastName"
+                }
+              />
+            </div>
+            <input
+              className="edit-name-form__bt"
+              type="submit"
+              value="Save"
+              onSubmit={() => setEditMode(false)}
+            />
+            <input
+              className="edit-name-form__bt"
+              type="button"
+              value="Cancel"
+              onClick={() => setEditMode(false)}
+            />
+          </form>
+        ) : (
+          <button className="edit-button" onClick={() => setEditMode(true)}>
+            Edit Name
+          </button>
+        )}
       </div>
       <h2 className="sr-only">Accounts</h2>
       <section className="account">
