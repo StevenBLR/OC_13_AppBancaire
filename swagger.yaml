@@ -1,0 +1,250 @@
+swagger: '2.0'
+info:
+  title: Bank Argent API documentation
+  description: Contains all available API endpoints in this codebase
+  version: '1.0.0'
+  termsOfService: 'http://swagger.io/terms/'
+host: localhost:3001
+basePath: /api/v1
+schemes:
+  - http
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Login Successfully
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for Signup
+      parameters:
+        - in: body
+          name: body
+          description: Signup Payload
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Signup Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/transactions:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Get last transactions ( current month )
+      description: API for fetching user's last transactions ( current month )
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User last transactions retrieved successully
+          schema:
+            $ref: '#/definitions/TransactionsApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/transaction:
+    post:
+      tags:
+        - User Module
+      summary: Get transaction details
+      description: API for fetching transaction details
+      parameters:
+        - in: body
+          name: body
+          description: Transaction details
+          required: true
+          schema:
+            $ref: '#/definitions/Transaction'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully get transaction details
+          schema:
+            $ref: '#/definitions/TransactionDetails'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Edit transaction
+      description: API for updating transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Update user transaction attributes
+          required: true
+          schema:
+            $ref: '#/definitions/Transaction'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: User transaction retrieved successully
+          schema:
+            $ref: '#/definitions/TransactionsApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  User:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+      firstName:
+        type: string
+        description: user first name
+      lastName:
+        type: string
+        description: user last name
+  Login:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          id:
+            type: string
+          email:
+            type: string
+  TransactionsApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          transactions:
+            type: object
+            properties:
+              transaction:
+                type: object
+                properties:
+                  transactionId:
+                    type: string
+                  date:
+                    type: string
+                  emitter:
+                    type: string
+                  receiver:
+                    type: string
+                  amount:
+                    type: number
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+  UserProfile:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+  Transaction:
+    type: object
+    properties:
+      transactionId:
+        type: string
+      date:
+        type: string
+      emitter:
+        type: string
+      receiver:
+        type: string
+      amount:
+        type: number
+  TransactionDetails:
+    type: object
+    properties:
+      transactionId:
+        type: string
+      date:
+        type: string
+      emitter:
+        type: string
+      receiver:
+        type: string
+      amount:
+        type: number
+      message:
+        type: string
+      details:
+        type: string
+      emitterCurrency:
+        type: string
+      receiverCurrency:
+        type: string
