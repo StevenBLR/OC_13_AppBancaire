@@ -15,11 +15,11 @@ function User() {
   const { register, handleSubmit } = useForm();
   const store = useStore();
   const navigation = useNavigate();
-  const user = useSelector(selectUser);
+  const user = useSelector(selectUser); // TODO - Censé subscribe l'etat du state
 
   useEffect(() => {
     // 1 - Si token introuvable ou n'est plus valable --> Redirect vers signin page
-    if (!isLogged(store)) navigation("/signin", { replace: false });
+    if (!isLogged(store)) navigation("/signin");
   }, [user, navigation, store]);
 
   useEffect(() => {

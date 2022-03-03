@@ -119,20 +119,11 @@ export function isLogged(store) {
   // 1 - Verif du state Redux
   let logged = false;
   let token = store.getState().user.token;
+
   // 2a - Si token indispo via redux --> Verif du local storage
   if (!token) {
     token = getData("token");
-    if (token) {
-      if (!isExpired(token)) {
-        store.dispatch(resumeLocalSession(token));
-        console.log("Token retrouvé, reprise de la session");
-        logged = true;
-      }
-      // 4b - Si le token a expiré --> Return false
-      else {
-        console.log("Token expiré, reconnectez-vous");
-      }
-    }
+    token && console.log("Token retrouvé, reprise de la session");
   }
   // 2b - Token imported via redux
   else logged = true;

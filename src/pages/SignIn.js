@@ -28,6 +28,7 @@ function SignIn() {
     // },
   });
 
+  // Verifier session en cours
   useEffect(() => {
     if (isLogged(store)) navigation("/user", { replace: false });
   }, [navigation, store]);
