@@ -173,14 +173,18 @@ export function updateName(store, firstName, lastName) {
   };
 
   // 6 - Retour de la promesse
-  return axInstance.put(
-    `${serverUrl}/user/profile`,
-    {
-      firstName: firstName,
-      lastName: lastName,
-    },
-    reqConfig
-  );
+  return axInstance
+    .put(
+      `${serverUrl}/user/profile`,
+      {
+        firstName: firstName,
+        lastName: lastName,
+      },
+      reqConfig
+    )
+    .then((res) => {
+      store.dispatch(userSetProfil(res?.data?.body));
+    });
 }
 
 export function getProfil(store) {
@@ -199,7 +203,9 @@ export function getProfil(store) {
   };
 
   // 4 - Retour de la promesse
-  return axInstance.post(`${serverUrl}/user/profile`, {}, reqConfig);
+  axInstance.post(`${serverUrl}/user/profile`, {}, reqConfig).then((res) => {
+    store.dispatch(userSetProfil(res?.data?.body));
+  });
 }
 
 //#endregion
