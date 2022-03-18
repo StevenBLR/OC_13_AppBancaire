@@ -82,7 +82,7 @@ paths:
           description: Invalid Fields
         "500":
           description: Internal Server Error
-  /user/transaction:
+  /user/transaction/{id}:
     get:
       security:
         - Bearer: []
@@ -127,6 +127,36 @@ paths:
           description: Invalid Fields
         "500":
           description: Internal Server Error
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Create transaction
+      description: API to create transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Create user transaction
+          required: true
+          schema:
+            $ref: "#/definitions/Transaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: User transaction successully created
+          schema:
+            $ref: "#/definitions/TransactionsApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
     put:
       security:
         - Bearer: []
@@ -151,6 +181,37 @@ paths:
       responses:
         "200":
           description: User transaction retrieved successully
+          schema:
+            $ref: "#/definitions/TransactionsApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+    delete:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Delete transaction
+      description: API for deleting transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Delete user transaction
+          required: true
+          schema:
+            $ref: "#/definitions/Transaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: User transaction deleted successully
           schema:
             $ref: "#/definitions/TransactionsApiResponse"
         "400":
